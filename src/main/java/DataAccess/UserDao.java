@@ -23,4 +23,8 @@ public class UserDao extends Dao {
       user.personID = result.getString("personID");
       return user;
   }
+
+  public User getUser(String username) throws SQLException, DataAccessException {
+    return (User) getRecord(username);
+  }
 }

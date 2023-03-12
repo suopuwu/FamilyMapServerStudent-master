@@ -55,11 +55,13 @@ public abstract class Dao {
 
       //Create sql string using fields of the record being added
       for (Field f : record.getClass().getDeclaredFields()) {
-        String name = f.getName();
+        String name = f.getName().replace("'","''");
         Object value = f.get(record);
-
-        columns.append(name).append(", ");
-        values.append("'").append(value.toString()).append("', ");
+        if(value != null) {
+          columns.append(name).append(", ");
+          String valueSurroundings = (value instanceof String ? "'" : "");
+          values.append(valueSurroundings).append(value.toString().replace("'","''")).append(valueSurroundings).append(", ");
+        }
       }
       //Remove extra comma, unless the string is empty
       columns.setLength(Math.max(columns.length() - 2, 0));
@@ -75,11 +77,12 @@ public abstract class Dao {
 
   /**
    * Gets the single record indicated by value.
-   * @param value the value to search for.
+   * @param value the value to search for. username for users, personID for person, username for authtoken, eventID for events.
    * @return a model containing the data requested.
    * @throws SQLException if there is a database error
    * */
   public Model getRecord(String value) throws SQLException, DataAccessException {
+    value = value.replace("'","''");
     connect();
     try {
       String sqlString = "SELECT * FROM \"" + tableName + "\" WHERE \"" + idColumn + "\" = \"" + value + "\";";
@@ -103,6 +106,7 @@ public abstract class Dao {
   public ArrayList<Model> getMultipleRecordsByColumn(String column, String value) throws SQLException, DataAccessException {
     connect();
     try {
+      value = value.replace("'","''");
       ArrayList<Model> results = new ArrayList<>();
       String sqlString = "SELECT * FROM \"" + tableName + "\" WHERE \"" + column + "\" = \"" + value + "\";";
       ResultSet result = sqlStatement.executeQuery(sqlString);
@@ -137,7 +141,23 @@ public abstract class Dao {
   }
 
   /**
+   * Deletes records by column.
+   * @param value the record to delete
+   * @throws SQLException if there is a database error
+   * */
+  public int removeRecordsWhere(String column, String value) throws SQLException, DataAccessException {
+    connect();
+    try {
+      String sqlString = "DELETE FROM \"" + tableName + "\" WHERE \"" + column + "\" = \"" + value + "\";";
+      return sqlStatement.executeUpdate(sqlString);
+    } finally {//ensure the database is closed, no matter what.
+      disconnect();
+    }
+  }
+
+  /**
    * Mutates the record in question to the new non-null values passed in record, if it exists.
+   * @return true if a record was indeed edited.
    * @param record the record to update
    * @throws SQLException if there is a database error
    * */
@@ -149,11 +169,11 @@ public abstract class Dao {
       String id=null;
       //Create sql string using fields of the record being added
       for (Field f : record.getClass().getDeclaredFields()) {
-        String name = f.getName();
+        String name = f.getName().replace("'","''");
         Object value = f.get(record);
         if(value != null && name != idColumn) {
           String valueSurroundings = (value instanceof String ? "'" : "");
-          additionalString.append(name).append(" = ").append(valueSurroundings).append(value).append(valueSurroundings).append(", ");
+          additionalString.append(name).append(" = ").append(valueSurroundings).append(value.toString().replace("'","''")).append(valueSurroundings).append(", ");
         }
         if(name.equals(idColumn)) {
           id = value.toString();

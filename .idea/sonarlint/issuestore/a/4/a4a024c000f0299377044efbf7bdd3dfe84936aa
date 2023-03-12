@@ -1,0 +1,28 @@
+
+v
+java:S1104
+"TMake username a static final constant or non-public and provide accessors if needed.(êéîøşÿÿÿÿ8·‚Óûê0
+v
+java:S1104
+"TMake password a static final constant or non-public and provide accessors if needed.(êéîøşÿÿÿÿ8·‚Óûê0
+s
+java:S1104
+"QMake email a static final constant or non-public and provide accessors if needed.(êéîøşÿÿÿÿ8·‚Óûê0
+w
+java:S1104
+"UMake firstName a static final constant or non-public and provide accessors if needed.(êéîøşÿÿÿÿ8·‚Óûê0
+v
+java:S1104
+"TMake lastName a static final constant or non-public and provide accessors if needed.(êéîøşÿÿÿÿ8¸‚Óûê0
+t
+java:S1104
+"RMake gender a static final constant or non-public and provide accessors if needed.(êéîøşÿÿÿÿ8¸‚Óûê0
+v
+java:S1104
+"TMake personID a static final constant or non-public and provide accessors if needed.(êéîøşÿÿÿÿ8¸‚Óûê0
+o	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(á–Ì“
+g
+java:S1659
+"EDeclare "password" and all following declarations on a separate line.(êéîøşÿÿÿÿ8­ûÊıê0
+K
+java:S1128"/Remove this unused import 'java.sql.ResultSet'.(ˆóÚw8ŸÍ»ıë0

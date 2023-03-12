@@ -12,7 +12,7 @@ public class LoadService extends BaseService {
     exchangeType = ExchangeTypes.LOAD;
   }
 
-  Response load(Request request) {
+  public Response load(Request request) {
     try {
 
       return null;

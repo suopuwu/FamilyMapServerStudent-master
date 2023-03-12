@@ -11,7 +11,7 @@ public class RelatedEventsService extends BaseService {
     exchangeType = ExchangeTypes.RELATED_EVENTS;
   }
 
-  Response getEvents() {
+  public Response getEvents() {
     try {
 
       return null;

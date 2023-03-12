@@ -12,7 +12,7 @@ public class RegisterService extends BaseService {
     exchangeType = ExchangeTypes.REGISTER;
   }
 
-  Response register(Request request) {
+  public Response register(Request request) {
     try {
 
       return null;

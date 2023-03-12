@@ -1,0 +1,8 @@
+
+3
+java:S1700
+"Rename field "authToken"(î®Ò‰øÿÿÿÿ
+o	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(á–Ì“
+A
+java:S1659
+"&Declare "username" on a separate line.(î®Ò‰øÿÿÿÿ

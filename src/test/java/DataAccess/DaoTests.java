@@ -98,6 +98,14 @@ public class DaoTests {
       User retrievedUser = (User) testPersonDao.getRecord("nonexistent person");
     });
   }
+//  @Test
+//  @DisplayName("Edit nonexistent person")
+//  void editNonexistentPerson() throws SQLException, DataAccessException, IllegalAccessException {
+//    testPersonDao.addRecord(examplePerson);
+//    Assertions.assertThrows(DataAccessException.class, ()-> {
+//      System.out.println(testPersonDao.editRecord(new Person("person id", "username", "first", "last", "m", "father", "mother", "spouse")));
+//    });
+//  }
 
   @Test
   @DisplayName("Clear person data test")

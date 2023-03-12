@@ -13,7 +13,7 @@ public class LoginService extends BaseService {
     exchangeType = ExchangeTypes.LOGIN;
   }
 
-  Response login(Request request) {
+  public Response login(Request request) {
     try {
 
       return null;

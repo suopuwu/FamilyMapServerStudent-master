@@ -13,7 +13,7 @@ public class PersonService extends BaseService {
     exchangeType = ExchangeTypes.PERSON;
   }
 
-  Response getPerson(Request request) {
+  public Response getPerson(Request request) {
     try {
 
       return null;

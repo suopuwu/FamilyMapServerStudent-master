@@ -24,4 +24,8 @@ public class PersonDao extends Dao {
     person.spouseID = result.getString("spouseID");
     return person;
   }
+
+  public Person getPerson(String personID) throws SQLException, DataAccessException {
+    return (Person) getRecord(personID);
+  }
 }
