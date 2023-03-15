@@ -35,8 +35,8 @@ public class DaoTests {
   @DisplayName("Add duplicate user record test")
   void addDuplicateUser() throws SQLException, DataAccessException, IllegalAccessException {
     Assertions.assertThrows(SQLException.class, ()-> {
-      assertTrue(testUserDao.addRecord(exampleUser));
-      assertTrue(testUserDao.addRecord(exampleUser));
+      testUserDao.addRecord(exampleUser);
+      testUserDao.addRecord(exampleUser);
     });
   }
 

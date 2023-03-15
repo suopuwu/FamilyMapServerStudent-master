@@ -20,7 +20,6 @@ public class FamilyService extends BaseService {
   public FamilyService() {
     exchangeType = ExchangeTypes.FAMILY;
   }
-  private PersonDao personDao = new PersonDao();
 //  private UserDao userDao = new UserDao();
 //  private HashSet<Person> people;
 //  private void branch(Person person) throws SQLException, DataAccessException {

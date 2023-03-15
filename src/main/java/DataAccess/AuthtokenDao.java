@@ -8,7 +8,7 @@ import java.sql.SQLException;
 public class AuthtokenDao extends Dao {
   public AuthtokenDao() {
     tableName = "Authtokens";
-    idColumn = "username";
+    idColumn = "authtoken";
   }
 
   @Override

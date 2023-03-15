@@ -6,7 +6,7 @@ import java.util.Random;
 
 public class RandomLocationService {
   public static final Random random = new Random();
-  public final Location[] locations = {
+  public static final Location[] locations = {
           new Location("Canada", "Alert", 82.5f, -61.6667f),
           new Location("Denmark", "Nord", 81.6f, -15.3333f),
           new Location("Canada", "Eureka", 79.9833f, -84.0667f),
@@ -987,7 +987,7 @@ public class RandomLocationService {
           new Location("United States", "South Pole Station", -90f, 0f)
   };
 
-  public Location getRandomLocation() {
+  public static Location getRandomLocation() {
     return locations[random.nextInt(locations.length)];
   }
 }

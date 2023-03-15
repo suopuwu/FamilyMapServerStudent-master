@@ -1,5 +1,6 @@
 package DataAccess;
 
+import Exchange.Exchange;
 import Exchange.ExchangeTypes;
 import Exchange.Request;
 import Exchange.Response;
@@ -82,8 +83,8 @@ public class ServiceTests {
   @Test
   void uuidTest() {
     UUIDService uuidService = new UUIDService();
-    System.out.println(uuidService.getUUID());
-    System.out.println(uuidService.getUUID());
+    System.out.println(UUIDService.getUUID());
+    System.out.println(UUIDService.getUUID());
   }
 
   @Test
@@ -106,5 +107,122 @@ public class ServiceTests {
     Assertions.assertEquals(91, testEventDao.getMultipleRecordsByColumn("associatedUsername", testUser.username).size());
     Assertions.assertEquals(31, testPersonDao.getMultipleRecordsByColumn("associatedUsername", testUser.username).size());
     System.out.println(response.message);
+  }
+
+  @Test
+  void loadTest() {
+    addTestData();
+    LoadService loadService = new LoadService();
+    Request request = new Request(ExchangeTypes.LOAD);
+    request.users = new User[]{testUser, new User("new user", "pass", "e", "fir", "last", "f", "lskdjflk")};
+    request.persons = new Person[]{testPerson};
+    Response response = loadService.load(request);
+    System.out.println(response.message);
+    Assertions.assertTrue(response.success);
+  }
+  @Test
+  void loginTest() {
+    addTestData();
+    LoginService loginService = new LoginService();
+    Request request = new Request(ExchangeTypes.LOGIN);
+    request.username = "username";
+    request.password = "password";
+    Response response = loginService.login(request);
+    Assertions.assertTrue(response.success);
+  }
+
+  @Test
+  void wrongPasswordTest() {
+    addTestData();
+    LoginService loginService = new LoginService();
+    Request request = new Request(ExchangeTypes.LOGIN);
+    request.username = "username";
+    request.password = "wrong password";
+    Response response = loginService.login(request);
+    System.out.println(response.message);
+    Assertions.assertFalse(response.success);
+  }
+
+  @Test
+  void personTest() {
+    addTestData();
+    PersonService personService = new PersonService();
+    Request request = new Request(ExchangeTypes.PERSON);
+    request.Authorization = "token";
+    request.personID = "personID";
+    Response response = personService.getPerson(request);
+    System.out.println(response.message);
+    Assertions.assertTrue(response.success);
+  }
+
+  @Test
+  void registerTest() {
+    addTestData();
+    RegisterService registerService = new RegisterService();
+    Request request = new Request(ExchangeTypes.REGISTER);
+    request.username = "username two";
+    request.password = "password";
+    request.email = "email";
+    request.firstName = "first";
+    request.lastName = "last";
+    request.gender = "f";
+    Response response = registerService.register(request);
+    System.out.println(response.message);
+    Assertions.assertTrue(response.success);
+  }
+
+  @Test
+  void registerDuplicateTest() {
+    addTestData();
+    RegisterService registerService = new RegisterService();
+    Request request = new Request(ExchangeTypes.REGISTER);
+    request.username = "username";
+    request.password = "password";
+    request.email = "email";
+    request.firstName = "first";
+    request.lastName = "last";
+    request.gender = "f";
+    Response response = registerService.register(request);
+    System.out.println(response.message);
+    Assertions.assertFalse(response.success);
+  }
+
+  @Test
+  void relatedEventsTest() throws SQLException, DataAccessException, IllegalAccessException {
+    addTestData();
+    testEventDao.addRecord(new Event("first extra", "username", "lsdkjf", "country", "city", "type", 0.0f, 0.0f, 1));
+    testEventDao.addRecord(new Event("not associated", "not associated", "lsdkjf", "country", "city", "type", 0.0f, 0.0f, 1));
+    RelatedEventsService relatedEventsService = new RelatedEventsService();
+    Request request = new Request(ExchangeTypes.RELATED_EVENTS);
+    request.Authorization = "token";
+    Response response = relatedEventsService.getEvents(request);
+    System.out.println(response.message);
+    Assertions.assertEquals(2, response.data.length);
+  }
+
+  @Test
+  void relatedEventsBadToken() throws SQLException, DataAccessException, IllegalAccessException {
+    addTestData();
+    testEventDao.addRecord(new Event("first extra", "username", "lsdkjf", "country", "city", "type", 0.0f, 0.0f, 1));
+    testEventDao.addRecord(new Event("not associated", "not associated", "lsdkjf", "country", "city", "type", 0.0f, 0.0f, 1));
+    RelatedEventsService relatedEventsService = new RelatedEventsService();
+    Request request = new Request(ExchangeTypes.RELATED_EVENTS);
+    request.Authorization = "bad token";
+    Response response = relatedEventsService.getEvents(request);
+    System.out.println(response.message);
+    Assertions.assertFalse(response.success);
+  }
+
+  @Test
+  void JSONTest() throws SQLException, DataAccessException, IllegalAccessException {
+    addTestData();
+    testPersonDao.clear();
+    FillService fillService = new FillService();
+    Request request = new Request(ExchangeTypes.FILL);
+    request.username = testUser.username;
+    Response response = fillService.fill(request);
+    String json = response.serialize();
+    Response deserialized = (Response) Exchange.deserialize(json, ExchangeTypes.RESPONSE);
+    Assertions.assertEquals(deserialized.message, response.message);
   }
 }

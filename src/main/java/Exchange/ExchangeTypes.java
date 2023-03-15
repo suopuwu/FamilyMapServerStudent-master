@@ -9,5 +9,7 @@ public enum ExchangeTypes {
   PERSON,
   EVENT,
   RELATED_EVENTS,
-  FAMILY
+  FAMILY,
+  REQUEST,
+  RESPONSE
 }

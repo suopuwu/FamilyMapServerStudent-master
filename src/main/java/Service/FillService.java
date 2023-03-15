@@ -1,9 +1,6 @@
 package Service;
 
 import DataAccess.DataAccessException;
-import DataAccess.EventDao;
-import DataAccess.PersonDao;
-import DataAccess.UserDao;
 import Exchange.ExchangeTypes;
 import Exchange.Request;
 import Exchange.Response;
@@ -23,12 +20,7 @@ public class FillService extends BaseService {
     exchangeType = ExchangeTypes.FILL;
   }
   public static final Random random = new Random();
-
-  private static final PersonDao personDao = new PersonDao();
-  private static final UserDao userDao = new UserDao();
-  private static final EventDao eventDao = new EventDao();
-  private static final RandomLocationService locationGen = new RandomLocationService();
-  private static final UUIDService uuidService = new UUIDService();
+  public static final int DEFAULT_GENERATIONS = 4;
 
   private static final String[] fNames = {"Torgeson", "Maston", "Lisenby", "Ocheltree", "Cadden", "Garden", "Delcastillo", "Mccawley", "Albertson", "Chiang", "Sydnor", "Mcnulty", "Bowdoin", "Quiroz", "Waechter", "Schaber", "Nalley", "Voris", "Kliebert", "Woosley", "Mandelbaum", "Lindahl", "Freitag", "Van", "Vinyard", "Heidelberg", "Petrosino", "Kissee", "Heckel", "Gutierez", "Compton", "Stehlik", "Curington", "Lockley", "Wilhite", "Meuser", "Marko", "Critchfield", "Kelm", "Favreau", "Ivie", "Demarco", "Ingalls", "Holoman", "Livingston", "Mcdougald", "Darner", "Mcpheeters", "Dooling", "Blo", "Crain", "Caffee", "Cubbage", "Music", "Honea", "Chait", "Sorensen", "Westerlund", "Paxton", "Klocke", "Nicola", "Lazaro", "Seeger", "Northington", "Nibert", "Coachman", "Wishon", "Mccants", "Zieman", "Simien", "Gaudet", "Stringfellow", "Maus", "Byer", "Liao", "Cullinan", "Messmer", "Mcroberts", "Cardiel", "Pink", "Ogorman", "Minott", "Lightfoot", "Hornung", "Amsler", "Kelson", "Mcfarlain", "Rakes", "Wasinger", "Cessna", "Emory", "Mccane", "Fluellen", "Cosgrove", "Laford", "Taggert", "Hudkins", "Anker", "Hardt", "Lemus", "Simington", "Carmouche", "Larusso", "Warnick", "Estell", "Turck", "Jeppesen", "Nigro", "Chirico", "Murchison", "Rule", "Beal", "Broman", "Lugo", "Silverman", "Redmond", "Pera", "Orlowski", "Zemlicka", "Ackerley", "Gies", "Bleich", "Medina", "Housman", "Goggans", "Silvey", "Goguen", "Mcpeek", "Brace", "Hetherington", "Smolen", "Dennis", "Ruark", "Line", "Meiers", "Schroyer", "Clear", "Hellard", "Buckalew", "Tu", "Schill", "Ridge", "Sacco", "Babbitt", "Durrell", "Vitagliano", "Mullan", "Villegas", "Kehr", "Pleasant", "Loss", "Mitten"};
 
@@ -52,19 +44,25 @@ public class FillService extends BaseService {
    * the request. Contains username and generations (default 4)
    * */
   private void addPeople(Request request) throws SQLException, DataAccessException, IllegalAccessException {
+    request.generations = (request.generations == null) ? DEFAULT_GENERATIONS : request.generations;
     ArrayList<Person> justAddedPeople = new ArrayList<>();
 
     User user = userDao.getUser(request.username);
     justAddedPeople.add(new Person(user.personID, user.username, user.firstName, user.lastName, user.gender, null, null, null));
 
     //add people, not events yet
-    for(int i = 0; i <= request.generations; i++) {//for each generation added
+    for(int i = 0; i < request.generations; i++) {//for each generation added
       ArrayList<Person> currentlyAddingPeople = new ArrayList<>();
       for(Person person : justAddedPeople) {//for each person in the prior added generation, add their parents
-        person.fatherID = uuidService.getUUID();
-        person.motherID = uuidService.getUUID();
+        person.fatherID = UUIDService.getUUID();
+        person.motherID = UUIDService.getUUID();
         Person father = new Person(person.fatherID, request.username, getRandomItem(mNames), getRandomItem(sNames), "m", null, null, person.motherID);
         Person mother = new Person(person.motherID, request.username, getRandomItem(mNames), getRandomItem(sNames), "f", null, null, person.fatherID);
+        if(i == request.generations - 1) {//on the last iteration, add remaining people
+          personDao.addRecord(father);
+          personDao.addRecord(mother);
+          peopleAdded += 2;
+        }
         if(!personDao.editRecord(person)) {//if no record exists to edit, add it.
           personDao.addRecord(person);
           peopleAdded++;
@@ -76,6 +74,7 @@ public class FillService extends BaseService {
         currentlyAddingPeople.add(mother);
       }
       justAddedPeople = currentlyAddingPeople;
+
     }
   }
 
@@ -96,9 +95,9 @@ public class FillService extends BaseService {
 
     addBirthAndDeath(mother, momBirth, momDeath);
     addBirthAndDeath(father, dadBirth, dadDeath);
-    Location location = locationGen.getRandomLocation();
-    eventDao.addRecord(new Event(uuidService.getUUID(), mother.associatedUsername, mother.personID, location.country, location.city, "marriage", location.latitude, location.longitude, marriageYear));
-    eventDao.addRecord(new Event(uuidService.getUUID(), father.associatedUsername, father.personID, location.country, location.city, "marriage", location.latitude, location.longitude, marriageYear));
+    Location location = RandomLocationService.getRandomLocation();
+    eventDao.addRecord(new Event(UUIDService.getUUID(), mother.associatedUsername, mother.personID, location.country, location.city, "marriage", location.latitude, location.longitude, marriageYear));
+    eventDao.addRecord(new Event(UUIDService.getUUID(), father.associatedUsername, father.personID, location.country, location.city, "marriage", location.latitude, location.longitude, marriageYear));
     eventsAdded += 2;
 
     callAddEventsOnParents(father, dadBirth);
@@ -114,10 +113,10 @@ public class FillService extends BaseService {
   }
 
   private void addBirthAndDeath(Person person, int birth, int death) throws SQLException, DataAccessException, IllegalAccessException {
-    Location location = locationGen.getRandomLocation();
-    eventDao.addRecord(new Event(uuidService.getUUID(), person.associatedUsername, person.personID, location.country, location.city, "birth", location.latitude, location.longitude, birth));
-    location = locationGen.getRandomLocation();
-    eventDao.addRecord(new Event(uuidService.getUUID(), person.associatedUsername, person.personID, location.country, location.city, "death", location.latitude, location.longitude, death));
+    Location location = RandomLocationService.getRandomLocation();
+    eventDao.addRecord(new Event(UUIDService.getUUID(), person.associatedUsername, person.personID, location.country, location.city, "birth", location.latitude, location.longitude, birth));
+    location = RandomLocationService.getRandomLocation();
+    eventDao.addRecord(new Event(UUIDService.getUUID(), person.associatedUsername, person.personID, location.country, location.city, "death", location.latitude, location.longitude, death));
     eventsAdded += 2;
   }
 
@@ -129,10 +128,10 @@ public class FillService extends BaseService {
     HashMap<String, Integer> birthYears = new HashMap<>();
 
     //generate first event data, from which the loop will branch off of.
-    Location location = locationGen.getRandomLocation();
+    Location location = RandomLocationService.getRandomLocation();
     int startingYear = 2000;
     birthYears.put(rootPerson.personID, startingYear);
-    eventDao.addRecord(new Event(uuidService.getUUID(), username, rootPerson.personID, location.country, location.city, "birth", location.latitude, location.longitude, startingYear));
+    eventDao.addRecord(new Event(UUIDService.getUUID(), username, rootPerson.personID, location.country, location.city, "birth", location.latitude, location.longitude, startingYear));
     eventsAdded++;
     personMap = new HashMap<>();
     for(Person person : people) {
@@ -141,7 +140,7 @@ public class FillService extends BaseService {
     recursiveAddEvents(rootPerson, personMap.get(rootPerson.fatherID), personMap.get(rootPerson.motherID), startingYear);
   }
 
-  public Response fill(Request request) throws SQLException, DataAccessException, IllegalAccessException {
+  public Response fill(Request request) {
     try {
       peopleAdded = 0;
       eventsAdded = 0;

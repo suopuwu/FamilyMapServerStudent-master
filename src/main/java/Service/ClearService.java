@@ -17,7 +17,7 @@ public class ClearService extends BaseService {
 
   public Response clear() {
     try {
-      Dao[] allDaos = {new UserDao(), new EventDao(), new PersonDao(), new AuthtokenDao()};
+      Dao[] allDaos = {userDao, eventDao, authtokenDao, personDao};
       for(Dao dao : allDaos) {
         dao.clear();
       }
